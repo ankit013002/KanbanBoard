@@ -1,8 +1,7 @@
-import { Card } from "@/lib/types";
 import { useAppDispatch } from "@/store";
-import { moveCard } from "@/store/KanbanSlice";
+import { Card, moveCard } from "@/store/KanbanSlice";
 import { motion, PanInfo } from "framer-motion";
-import React from "react";
+import React, { useState } from "react";
 
 interface CardProps {
   card: Card;
@@ -12,6 +11,7 @@ interface CardProps {
 
 const Card = ({ card, index, columnId }: CardProps) => {
   const dispatch = useAppDispatch();
+  const [isDragging, setIsDragging] = useState(false);
 
   function handleDragEnd(_event: MouseEvent | TouchEvent, info: PanInfo) {
     const { point } = info;
@@ -38,7 +38,7 @@ const Card = ({ card, index, columnId }: CardProps) => {
 
     const cardElements = Array.from(
       dropColumnElement.querySelectorAll<HTMLElement>(`[data-card-id]`)
-    );
+    ).filter((el) => el.dataset.cardId !== String(card.id));
 
     const toIndex = cardElements.findIndex((cardElement) => {
       const r = cardElement.getBoundingClientRect();
@@ -58,15 +58,19 @@ const Card = ({ card, index, columnId }: CardProps) => {
 
   return (
     <motion.div
-      layout
       drag
       dragSnapToOrigin
       dragMomentum={false}
-      onDragEnd={handleDragEnd}
+      onDragStart={() => setIsDragging(true)}
+      onDragEnd={(e, info) => {
+        handleDragEnd(e, info);
+        setIsDragging(false);
+      }}
+      whileDrag={{ zIndex: 100, scale: 1.02 }}
       data-card-id={card.id}
-      className="p-3 mb-2 bg-white rounded shadow cursor-grab"
+      className="p-3 mb-2 bg-black rounded shadow cursor-grab"
     >
-      <strong>{card.title}</strong>
+      <strong>{card.id}</strong>
       <p className="text-xs mt-1">{card.text}</p>
     </motion.div>
   );

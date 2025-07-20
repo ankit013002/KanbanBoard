@@ -1,13 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
-import React, { useState } from "react";
+import React from "react";
 import Column from "./Column";
 import { useDispatch } from "react-redux";
 import { addColumn } from "@/store/KanbanSlice";
 import { useAppSelector } from "@/store";
-
-interface CardsState {}
 
 const Board = () => {
   const dispatch = useDispatch();

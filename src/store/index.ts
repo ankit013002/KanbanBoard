@@ -1,10 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-import {
-  UseDispatch,
-  useSelector,
-  TypedUseSelectorHook,
-  useDispatch,
-} from "react-redux";
+import { useSelector, TypedUseSelectorHook, useDispatch } from "react-redux";
 import kanbanReducer from "./KanbanSlice";
 
 export const store = configureStore({

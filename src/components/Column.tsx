@@ -21,9 +21,12 @@ const Column = ({ columnId }: ColumnProps) => {
   const cards = column.cards;
 
   const handleAddCard = () => {
-    const newCard: Card = { id: 1, title: "CARD", text: "Generic Text" };
-    if (cards.length < 1)
-      dispatch(addCard({ columnId: column.id, card: newCard }));
+    const newCard: Card = {
+      id: crypto.randomUUID(),
+      title: "CARD",
+      text: "Generic Text",
+    };
+    dispatch(addCard({ columnId: column.id, card: newCard }));
   };
 
   return (

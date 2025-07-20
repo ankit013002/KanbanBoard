@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface Card {
-  id: number;
+  id: string;
   title: string;
   text: string;
 }
@@ -39,7 +39,7 @@ const kanbanSlice = createSlice({
       state: KanbanState,
       action: PayloadAction<{
         columnId: number;
-        card: { id: number; title?: string; text?: string };
+        card: { id: string; title?: string; text?: string };
       }>
     ) {
       const { columnId, card } = action.payload;
@@ -55,7 +55,7 @@ const kanbanSlice = createSlice({
       action: PayloadAction<{
         fromColumnId: number;
         toColumnId: number;
-        cardId: number;
+        cardId: string;
         toIndex: number;
       }>
     ) {
