@@ -22,7 +22,6 @@ const Column = ({ columnId }: ColumnProps) => {
   );
   const cards = column?.cards ?? [];
 
-  // Local drag meta for placeholder
   const [dragging, setDragging] = useState<DraggingMeta | null>(null);
 
   const handleAddCard = () => {
@@ -34,7 +33,6 @@ const Column = ({ columnId }: ColumnProps) => {
     dispatch(addCard({ columnId, card: newCard }));
   };
 
-  // Callback passed to Card to set/clear drag meta
   const setDraggingMeta = useCallback(
     (meta: DraggingMeta | null) => setDragging(meta),
     []
