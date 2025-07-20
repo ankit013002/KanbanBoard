@@ -1,24 +1,37 @@
 import { Card } from "@/lib/types";
 import { useAppSelector } from "@/store";
+import { addCard } from "@/store/KanbanSlice";
 import { motion } from "framer-motion";
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 
 interface ColumnProps {
   columnId: number;
 }
 
 const Column = ({ columnId }: ColumnProps) => {
+  const dispatch = useDispatch();
   const column = useAppSelector((state) =>
     state.kanban.columns.find((col) => col.id === columnId)
   );
+  if (!column) {
+    return;
+  }
+  const cards = column.cards;
+
   console.log("HERE:", column);
-  const [cards, setCards] = useState(0);
+
+  const handleAddCard = () => {
+    const newCard: Card = { id: 1, title: "CARD", text: "Generic Text" };
+    if (cards.length < 1)
+      dispatch(addCard({ columnId: column.id, card: newCard }));
+  };
 
   return (
     <div className="min-w-[20vw] max-w-[20vw]">
       <ul className="list bg-base-100 rounded-box shadow-md">
-        {Array.from({ length: cards }).map((_, index) => (
-          <div key={index}>
+        {cards.map((card) => (
+          <div key={card.id}>
             <motion.li dragSnapToOrigin drag className="list-row">
               <div>
                 <div>Dio Lupa</div>
@@ -69,7 +82,7 @@ const Column = ({ columnId }: ColumnProps) => {
             </motion.li>
           </div>
         ))}
-        <button onClick={() => setCards(cards + 1)} className="btn">
+        <button onClick={() => handleAddCard()} className="btn">
           Add Card
         </button>
       </ul>
