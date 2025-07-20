@@ -3,19 +3,33 @@
 import { motion } from "framer-motion";
 import React, { useState } from "react";
 import Column from "./Column";
+import { useDispatch } from "react-redux";
+import { addColumn } from "@/store/KanbanSlice";
+import { useAppSelector } from "@/store";
+
+interface CardsState {}
 
 const Board = () => {
-  const [columns, setColumns] = useState(0);
+  const dispatch = useDispatch();
+  const columns = useAppSelector((state) => state.kanban.columns);
+
+  const handleClick = () => {
+    if (columns.length < 1) {
+      dispatch(addColumn({ id: 1, title: "To Do" }));
+    } else {
+      dispatch(addColumn({ id: columns.length + 1, title: "To Do" }));
+    }
+  };
 
   console.log(columns);
   return (
     <div className="bg-gray-500 h-screen p-5 flex overflow-x-scroll">
-      {Array.from({ length: columns }).map((_, index) => (
-        <div key={index}>
-          <Column />
+      {columns.map((column) => (
+        <div key={column.id}>
+          <Column columnId={column.id} />
         </div>
       ))}
-      <button onClick={() => setColumns(columns + 1)} className="btn">
+      <button onClick={() => handleClick()} className="btn">
         Add Column
       </button>
     </div>

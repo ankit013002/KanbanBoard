@@ -1,8 +1,17 @@
 import { Card } from "@/lib/types";
+import { useAppSelector } from "@/store";
 import { motion } from "framer-motion";
 import React, { useState } from "react";
 
-const Column = () => {
+interface ColumnProps {
+  columnId: number;
+}
+
+const Column = ({ columnId }: ColumnProps) => {
+  const column = useAppSelector((state) =>
+    state.kanban.columns.find((col) => col.id === columnId)
+  );
+  console.log("HERE:", column);
   const [cards, setCards] = useState(0);
 
   return (
