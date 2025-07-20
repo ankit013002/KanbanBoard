@@ -6,13 +6,13 @@ import { useAppSelector } from "@/store";
 import type { Card as CardType } from "@/store/KanbanSlice";
 import type { DraggingMeta } from "./Board";
 
-interface Props {
+interface ColumnProps {
   columnId: number;
   dragging: DraggingMeta | null;
-  setDraggingMeta: (m: DraggingMeta | null) => void;
+  setDraggingMeta: React.Dispatch<React.SetStateAction<DraggingMeta | null>>;
 }
 
-const Column = ({ columnId, dragging, setDraggingMeta }: Props) => {
+const Column = ({ columnId, dragging, setDraggingMeta }: ColumnProps) => {
   const dispatch = useDispatch();
   const column = useAppSelector((s) =>
     s.kanban.columns.find((c) => c.id === columnId)

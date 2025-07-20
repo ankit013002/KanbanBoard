@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Column from "./Column";
 import { useDispatch } from "react-redux";
-import { addColumn } from "@/store/KanbanSlice";
+import { addColumn, Card } from "@/store/KanbanSlice";
 import { useAppSelector } from "@/store";
 import { motion } from "framer-motion";
+import CardDetails from "./CardDetails";
 
 export interface DraggingMeta {
   id: string;
@@ -36,6 +37,25 @@ const Board = () => {
     }
   };
 
+  const cardRef = useRef<Card | null>(null);
+
+  useEffect(() => {
+    if (!draggingMeta) {
+      return;
+    }
+    const column = columns.find((column) =>
+      column.cards.some((card) => card.id === draggingMeta.id)
+    );
+    if (!column) {
+      return;
+    }
+    const card = column.cards.find((card) => card.id === draggingMeta.id);
+    if (!card) {
+      return;
+    }
+    cardRef.current = card;
+  }, [draggingMeta]);
+
   return (
     <div className="bg-gray-500 h-screen p-5 flex overflow-x-scroll">
       {columns.map((column) => (
@@ -47,7 +67,7 @@ const Board = () => {
         />
       ))}
 
-      {draggingMeta && (
+      {draggingMeta && cardRef.current && (
         <motion.div
           className="fixed pointer-events-none z-50"
           style={{ top: -50, left: -50 }}
@@ -56,13 +76,13 @@ const Board = () => {
           transition={{ type: "tween", stiffness: 1000, damping: 100 }}
         >
           <div
-            className="p-3 bg-black rounded shadow opacity-90"
+            className="bg-black rounded shadow opacity-90"
             style={{
               width: draggingMeta.width ?? 200,
               height: draggingMeta.height,
             }}
           >
-            <strong className="text-xs break-all">{draggingMeta.id}</strong>
+            <CardDetails card={cardRef.current} />
           </div>
         </motion.div>
       )}

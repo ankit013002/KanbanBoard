@@ -94,8 +94,6 @@ const kanbanSlice = createSlice({
         );
         return;
       }
-
-      // Clamp toIndex to valid bounds
       const clampedToIndex = Math.max(
         0,
         Math.min(toIndex, toColumn.cards.length)
@@ -125,8 +123,45 @@ const kanbanSlice = createSlice({
       );
       console.log("%c[Reducer moveCard] DONE", "color:#0af");
     },
+    modifyCardTitle(
+      state: KanbanState,
+      action: PayloadAction<{ columnId: number; cardId: string; title: string }>
+    ) {
+      const { columnId, cardId, title } = action.payload;
+      const column = state.columns.find((column) => column.id === columnId);
+      if (!column) {
+        return;
+      }
+
+      const card = column.cards.find((card) => card.id === cardId);
+
+      if (!card) {
+        return;
+      }
+
+      card.title = title;
+    },
+    modifyCardText(
+      state: KanbanState,
+      action: PayloadAction<{ columnId: number; cardId: string; text: string }>
+    ) {
+      const { columnId, cardId, text } = action.payload;
+      const column = state.columns.find((column) => column.id === columnId);
+      if (!column) {
+        return;
+      }
+
+      const card = column.cards.find((card) => card.id === cardId);
+
+      if (!card) {
+        return;
+      }
+
+      card.text = text;
+    },
   },
 });
 
-export const { addColumn, addCard, moveCard } = kanbanSlice.actions;
+export const { addColumn, addCard, moveCard, modifyCardTitle, modifyCardText } =
+  kanbanSlice.actions;
 export default kanbanSlice.reducer;

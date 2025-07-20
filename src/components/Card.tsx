@@ -3,15 +3,16 @@ import { Card as CardType, moveCard } from "@/store/KanbanSlice";
 import { motion, PanInfo } from "framer-motion";
 import React, { useRef } from "react";
 import type { DraggingMeta } from "./Board";
+import CardDetails from "./CardDetails";
 
-interface Props {
+interface CardProps {
   card: CardType;
   index: number;
   columnId: number;
-  setDraggingMeta: (m: DraggingMeta | null) => void;
+  setDraggingMeta: React.Dispatch<React.SetStateAction<DraggingMeta | null>>;
 }
 
-const Card = ({ card, index, columnId, setDraggingMeta }: Props) => {
+const Card = ({ card, index, columnId, setDraggingMeta }: CardProps) => {
   const dispatch = useAppDispatch();
   const elRef = useRef<HTMLDivElement | null>(null);
 
@@ -59,7 +60,7 @@ const Card = ({ card, index, columnId, setDraggingMeta }: Props) => {
       dragMomentum={false}
       whileDrag={{ zIndex: 100, scale: 1.03 }}
       data-card-id={card.id}
-      className="p-3 mb-2 bg-black rounded shadow cursor-grab select-none"
+      className="mb-2 bg-black rounded shadow cursor-grab select-none"
       onDragStart={(_e, info) => {
         const { x, y } = info.point;
         const h = elRef.current?.getBoundingClientRect().height ?? 0;
@@ -108,8 +109,9 @@ const Card = ({ card, index, columnId, setDraggingMeta }: Props) => {
         );
       }}
     >
-      <strong className="text-xs break-all">{card.id}</strong>
-      <p className="text-[10px] mt-1">{card.text}</p>
+      <div>
+        <CardDetails columnId={columnId} card={card} />
+      </div>
     </motion.div>
   );
 };
