@@ -18,7 +18,6 @@ const Board = () => {
     }
   };
 
-  console.log(columns);
   return (
     <div className="bg-gray-500 h-screen p-5 flex overflow-x-scroll">
       {columns.map((column) => (

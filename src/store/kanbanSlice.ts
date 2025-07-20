@@ -60,21 +60,70 @@ const kanbanSlice = createSlice({
       }>
     ) {
       const { fromColumnId, toColumnId, cardId, toIndex } = action.payload;
-      const fromColumn = state.columns.find(
-        (column) => column.id === fromColumnId
+      console.log(
+        "%c[Reducer moveCard] payload",
+        "background:#222;color:#0f0",
+        action.payload
       );
-      const toColumn = state.columns.find((column) => column.id === toColumnId);
+
+      const fromColumn = state.columns.find((c) => c.id === fromColumnId);
+      const toColumn = state.columns.find((c) => c.id === toColumnId);
 
       if (!fromColumn || !toColumn) {
+        console.log(
+          "%c[Reducer] Missing fromColumn or toColumn -> abort",
+          "color:red"
+        );
         return;
       }
 
-      const index = fromColumn.cards.findIndex((card) => card.id === cardId);
-      if (index < 0) {
+      const beforeFromIds = fromColumn.cards.map((c) => c.id);
+      const beforeToIds = toColumn.cards.map((c) => c.id);
+      console.log("[Reducer] fromColumn BEFORE:", beforeFromIds);
+      if (fromColumnId !== toColumnId) {
+        console.log("[Reducer] toColumn BEFORE:", beforeToIds);
+      }
+
+      const currentIndex = fromColumn.cards.findIndex((c) => c.id === cardId);
+      console.log("[Reducer] currentIndex in fromColumn:", currentIndex);
+
+      if (currentIndex < 0) {
+        console.log(
+          "%c[Reducer] Card not found in fromColumn -> abort",
+          "color:red"
+        );
         return;
       }
-      const [movedCard] = fromColumn.cards.splice(index, 1);
-      toColumn?.cards.splice(toIndex, 0, movedCard);
+
+      // Clamp toIndex to valid bounds
+      const clampedToIndex = Math.max(
+        0,
+        Math.min(toIndex, toColumn.cards.length)
+      );
+      if (clampedToIndex !== toIndex) {
+        console.log(
+          "%c[Reducer] toIndex clamped from " +
+            toIndex +
+            " to " +
+            clampedToIndex,
+          "color:orange"
+        );
+      }
+
+      const [movedCard] = fromColumn.cards.splice(currentIndex, 1);
+      console.log("[Reducer] Removed card:", movedCard.id);
+
+      toColumn.cards.splice(clampedToIndex, 0, movedCard);
+
+      const afterFromIds = fromColumn.cards.map((c) => c.id);
+      const afterToIds = toColumn.cards.map((c) => c.id);
+
+      console.log("[Reducer] fromColumn AFTER:", afterFromIds);
+      console.log(
+        "[Reducer] toColumn AFTER:",
+        fromColumnId === toColumnId ? afterFromIds : afterToIds
+      );
+      console.log("%c[Reducer moveCard] DONE", "color:#0af");
     },
   },
 });

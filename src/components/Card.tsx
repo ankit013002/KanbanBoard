@@ -1,27 +1,31 @@
 import { useAppDispatch } from "@/store";
-import { Card, moveCard } from "@/store/KanbanSlice";
+import { Card as CardType, moveCard } from "@/store/KanbanSlice";
 import { motion, PanInfo } from "framer-motion";
-import React, { useState } from "react";
+import React, { useRef } from "react";
 
 interface CardProps {
-  card: Card;
+  card: CardType;
   index: number;
   columnId: number;
+  setDraggingMeta: (
+    meta: { id: string; height: number; fromColumnId: number } | null
+  ) => void;
 }
 
-const Card = ({ card, index, columnId }: CardProps) => {
+const Card = ({ card, index, columnId, setDraggingMeta }: CardProps) => {
   const dispatch = useAppDispatch();
-  const [isDragging, setIsDragging] = useState(false);
+  const elRef = useRef<HTMLDivElement | null>(null);
 
-  function handleDragEnd(_event: MouseEvent | TouchEvent, info: PanInfo) {
+  function handleDragEnd(_e: MouseEvent | TouchEvent, info: PanInfo) {
+    setDraggingMeta(null); // remove placeholder
+
     const { point } = info;
 
-    const columnElements = Array.from(
+    // Find drop column
+    const dropColEl = Array.from(
       document.querySelectorAll<HTMLElement>("[data-column-id]")
-    );
-
-    const dropColumnElement = columnElements.find((element) => {
-      const r = element.getBoundingClientRect();
+    ).find((el) => {
+      const r = el.getBoundingClientRect();
       return (
         point.x >= r.left &&
         point.x <= r.right &&
@@ -30,48 +34,58 @@ const Card = ({ card, index, columnId }: CardProps) => {
       );
     });
 
-    if (!dropColumnElement) {
-      return;
-    }
+    if (!dropColEl) return;
 
-    const toColumnId = Number(dropColumnElement.dataset.columnId);
+    const toColumnId = Number(dropColEl.dataset.columnId);
 
-    const cardElements = Array.from(
-      dropColumnElement.querySelectorAll<HTMLElement>(`[data-card-id]`)
-    ).filter((el) => el.dataset.cardId !== String(card.id));
+    // Collect other cards (excluding the dragged one) and sort by visual top
+    const otherCards = Array.from(
+      dropColEl.querySelectorAll<HTMLElement>("[data-card-id]")
+    )
+      .filter((el) => el.dataset.cardId !== card.id)
+      .sort(
+        (a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top
+      );
 
-    const toIndex = cardElements.findIndex((cardElement) => {
-      const r = cardElement.getBoundingClientRect();
+    // Determine insertion index
+    const rawIndex = otherCards.findIndex((el) => {
+      const r = el.getBoundingClientRect();
       return point.y < r.top + r.height / 2;
     });
-    const finalIndex = toIndex === -1 ? cardElements.length : toIndex;
+
+    const toIndex = rawIndex === -1 ? otherCards.length : rawIndex;
+
+    if (toColumnId === columnId && toIndex === index) {
+      return; // no change
+    }
 
     dispatch(
       moveCard({
         fromColumnId: columnId,
         toColumnId,
         cardId: card.id,
-        toIndex: finalIndex,
+        toIndex,
       })
     );
   }
 
   return (
     <motion.div
+      ref={elRef}
+      layout
       drag
-      dragSnapToOrigin
       dragMomentum={false}
-      onDragStart={() => setIsDragging(true)}
-      onDragEnd={(e, info) => {
-        handleDragEnd(e, info);
-        setIsDragging(false);
+      onDragStart={() => {
+        const h = elRef.current?.getBoundingClientRect().height ?? 0;
+        setDraggingMeta({ id: card.id, height: h, fromColumnId: columnId });
       }}
-      whileDrag={{ zIndex: 100, scale: 1.02 }}
+      onDragEnd={(e, info) => handleDragEnd(e, info)}
+      whileDrag={{ zIndex: 100, scale: 1.03 }}
       data-card-id={card.id}
-      className="p-3 mb-2 bg-black rounded shadow cursor-grab"
+      className="p-3 mb-2 bg-black rounded shadow cursor-grab select-none"
     >
-      <strong>{card.id}</strong>
-      <p className="text-xs mt-1">{card.text}</p>
+      <strong className="text-xs break-all">{card.id}</strong>
+      <p className="text-[10px] mt-1">{card.text}</p>
     </motion.div>
   );
 };
