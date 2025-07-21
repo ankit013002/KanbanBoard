@@ -123,6 +123,18 @@ const kanbanSlice = createSlice({
       );
       console.log("%c[Reducer moveCard] DONE", "color:#0af");
     },
+    modifyColumnTitle(
+      state: KanbanState,
+      action: PayloadAction<{ columnId: number; title: string }>
+    ) {
+      const { columnId, title } = action.payload;
+      const column = state.columns.find((column) => column.id === columnId);
+      if (!column) {
+        return;
+      }
+
+      column.title = title;
+    },
     modifyCardTitle(
       state: KanbanState,
       action: PayloadAction<{ columnId: number; cardId: string; title: string }>
@@ -162,6 +174,12 @@ const kanbanSlice = createSlice({
   },
 });
 
-export const { addColumn, addCard, moveCard, modifyCardTitle, modifyCardText } =
-  kanbanSlice.actions;
+export const {
+  addColumn,
+  addCard,
+  moveCard,
+  modifyColumnTitle,
+  modifyCardTitle,
+  modifyCardText,
+} = kanbanSlice.actions;
 export default kanbanSlice.reducer;

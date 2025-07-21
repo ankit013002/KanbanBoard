@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import Card from "./Card";
 import { useDispatch } from "react-redux";
-import { addCard } from "@/store/KanbanSlice";
+import { addCard, modifyColumnTitle } from "@/store/KanbanSlice";
 import { useAppSelector } from "@/store";
 import type { Card as CardType } from "@/store/KanbanSlice";
 import type { DraggingMeta } from "./Board";
@@ -14,10 +14,15 @@ interface ColumnProps {
 
 const Column = ({ columnId, dragging, setDraggingMeta }: ColumnProps) => {
   const dispatch = useDispatch();
+
   const column = useAppSelector((s) =>
     s.kanban.columns.find((c) => c.id === columnId)
   );
+
   const cards = column?.cards ?? [];
+
+  const [isTitleEditable, setIsTitleEditable] = useState(false);
+  const [title, setTitle] = useState(column?.title ?? "");
 
   const display: (CardType | null)[] = dragging
     ? cards.filter((c) => c.id !== dragging.id)
@@ -31,7 +36,7 @@ const Column = ({ columnId, dragging, setDraggingMeta }: ColumnProps) => {
     dispatch(
       addCard({
         columnId,
-        card: { id: crypto.randomUUID(), title: "CARD", text: "Generic Text" },
+        card: { id: crypto.randomUUID(), title: "Title", text: "Generic Text" },
       })
     );
 
@@ -40,7 +45,25 @@ const Column = ({ columnId, dragging, setDraggingMeta }: ColumnProps) => {
       className="min-w-[20vw] max-w-[20vw] p-4 bg-base-200 rounded shadow mr-8"
       data-column-id={columnId}
     >
-      <h3 className="font-semibold mb-2">{column?.title}</h3>
+      {isTitleEditable ? (
+        <input
+          className="input"
+          onChange={(e) => setTitle(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              dispatch(modifyColumnTitle({ columnId, title }));
+              setIsTitleEditable(false);
+            }
+          }}
+        />
+      ) : (
+        <h3
+          onDoubleClick={() => setIsTitleEditable(true)}
+          className="font-semibold mb-2"
+        >
+          {column?.title}
+        </h3>
+      )}
 
       {display.map((c, i) =>
         c ? (
