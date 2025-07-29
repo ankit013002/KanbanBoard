@@ -1,6 +1,12 @@
 import { useAppDispatch } from "@/store";
-import { Card, modifyCardText, modifyCardTitle } from "@/store/KanbanSlice";
+import {
+  Card,
+  deleteCard,
+  modifyCardText,
+  modifyCardTitle,
+} from "@/store/KanbanSlice";
 import React, { useState } from "react";
+import { FaRegTrashAlt } from "react-icons/fa";
 
 interface CardDetailsProp {
   columnId?: number;
@@ -33,15 +39,25 @@ const CardDetails = ({ columnId, card }: CardDetailsProp) => {
             className="input"
           />
         ) : (
-          <h2
-            onDoubleClick={() => {
-              console.log("CLICK");
-              setIsTitleEditable(true);
-            }}
-            className="card-title z-10"
-          >
-            {card.title}
-          </h2>
+          <div className="flex justify-between mx-2">
+            <h2
+              onDoubleClick={() => {
+                console.log("CLICK");
+                setIsTitleEditable(true);
+              }}
+              className="card-title z-10"
+            >
+              {card.title}
+            </h2>
+            <button
+              onClick={() =>
+                dispatch(deleteCard({ columnId: columnId, cardId: card.id }))
+              }
+              className="btn btn-ghost"
+            >
+              <FaRegTrashAlt />
+            </button>
+          </div>
         )}
 
         {isTextEditable && columnId ? (

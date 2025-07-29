@@ -135,6 +135,13 @@ const kanbanSlice = createSlice({
 
       column.title = title;
     },
+    deleteColumn(
+      state: KanbanState,
+      action: PayloadAction<{ columnId: number }>
+    ) {
+      const { columnId } = action.payload;
+      state.columns = state.columns.filter((column) => column.id != columnId);
+    },
     modifyCardTitle(
       state: KanbanState,
       action: PayloadAction<{ columnId: number; cardId: string; title: string }>
@@ -171,6 +178,20 @@ const kanbanSlice = createSlice({
 
       card.text = text;
     },
+    deleteCard(
+      state: KanbanState,
+      action: PayloadAction<{ columnId: number | undefined; cardId: string }>
+    ) {
+      const { columnId, cardId } = action.payload;
+
+      if (!columnId) return;
+
+      const column = state.columns.find((column) => column.id === columnId);
+
+      if (!column) return;
+
+      column.cards = column.cards.filter((card) => card.id != cardId);
+    },
   },
 });
 
@@ -179,7 +200,9 @@ export const {
   addCard,
   moveCard,
   modifyColumnTitle,
+  deleteColumn,
   modifyCardTitle,
   modifyCardText,
+  deleteCard,
 } = kanbanSlice.actions;
 export default kanbanSlice.reducer;

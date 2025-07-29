@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import Card from "./Card";
 import { useDispatch } from "react-redux";
-import { addCard, modifyColumnTitle } from "@/store/KanbanSlice";
+import { addCard, deleteColumn, modifyColumnTitle } from "@/store/KanbanSlice";
 import { useAppSelector } from "@/store";
 import type { Card as CardType } from "@/store/KanbanSlice";
 import type { DraggingMeta } from "./Board";
+import { FaRegTrashAlt } from "react-icons/fa";
 
 interface ColumnProps {
   columnId: number;
@@ -57,12 +58,20 @@ const Column = ({ columnId, dragging, setDraggingMeta }: ColumnProps) => {
           }}
         />
       ) : (
-        <h3
-          onDoubleClick={() => setIsTitleEditable(true)}
-          className="font-semibold mb-2"
-        >
-          {column?.title}
-        </h3>
+        <div className="flex justify-between items-center mb-2">
+          <h3
+            onDoubleClick={() => setIsTitleEditable(true)}
+            className="font-semibold"
+          >
+            {column?.title}
+          </h3>
+          <button
+            onClick={() => dispatch(deleteColumn({ columnId }))}
+            className="btn btn-ghost"
+          >
+            <FaRegTrashAlt />
+          </button>
+        </div>
       )}
 
       {display.map((c, i) =>
